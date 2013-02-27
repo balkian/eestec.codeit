@@ -33,3 +33,5 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+secrets.py
+*.swp
