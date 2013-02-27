@@ -53,6 +53,67 @@ class Store(dict):
     def add_user(self,user):
         self[u'users'][user[u'login']]=user
 
+    def load_all(self,file='lcs.json'):
+        lcs=json.load(open(file))
+        self[u'lcs']=lcs
+        for lcrepo in lcs.keys():
+            repo=Org(lcrepo,store=self)
+            self.add_org(repo)
+        for org in self.orgs.values():
+            print "ORG: %s:" % org
+            org.reload_repos()
+            org.reload_members()
+        for user in self.users.values():
+            print "USER: %s" %user
+            user.reload_repos()
+
+    def get_stats(self):
+        statistics={}
+        usedlanguages={}
+        linesperlanguage={}
+        for repo in self.repos.values():
+            language=repo[u'language']
+            url=repo[u'url']
+            if language in usedlanguages:
+                usedlanguages[language].append([url])
+            else:
+                usedlanguages[language]=list([url])
+            languages=repo[u'languages']
+            for language,lines in languages.iteritems():
+                if language in linesperlanguage:
+                    linesperlanguage[language]+=lines
+                else:
+                    linesperlanguage[language]=lines
+        lcrepos=0
+        statistics[u'usedlanguages']=usedlanguages
+        statistics[u'linesperlanguage']=linesperlanguage
+        for lc in self[u'lcs']:
+            lcrepos+=len(self.orgs[lc][u'repos'])
+        statistics["lc-repos"]=lcrepos
+        statistics["total-repos"]=len(self.repos)
+        statistics["total-users"]=len(self.users)
+        totalfollowers=0
+        totalfollowing=0
+        totalstarred=0
+        for user in self.users.values():
+            totalfollowing+=len(user.following)
+            totalfollowers+=len(user.followers)
+            totalstarred+=len(user.starred)
+            user.repos
+        totalwatching=0
+        totalforks=0
+        for repo in self.repos.values():
+            totalwatching+=repo[u'watchers_count']
+            totalforks+=repo[u'forks_count']
+        statistics['total-followers']=totalfollowers
+        statistics['total-following']=totalfollowing
+        statistics['total-starred']=totalstarred
+        statistics['total-watching']=totalwatching
+        statistics['total-forks']=totalforks
+        self[u'statistics']=statistics
+        print self[u'orgs']
+        print self[u'statistics'][u'linesperlanguage']
+
 class BasicItem(dict):
     def __init__(self,name,dic=None,method=get_url,name_key=u'url',store=None):
         self.store=store
@@ -183,63 +244,3 @@ class Org(BasicLogin):
         else:
             self[u'members']=arr
 
-def load_all(store):
-    lcs=json.load(open('lcs.json'))
-    store[u'lcs']=lcs
-    for lcrepo in lcs.keys():
-        repo=Org(lcrepo,store=store)
-        store.add_org(repo)
-    for org in store.orgs.values():
-        print "ORG: %s:" % org
-        org.reload_repos()
-        org.reload_members()
-    for user in store.users.values():
-        print "USER: %s" %user
-        user.reload_repos()
-
-def get_stats(store):
-    statistics={}
-    usedlanguages={}
-    linesperlanguage={}
-    for repo in store.repos.values():
-        language=repo[u'language']
-        url=repo[u'url']
-        if language in usedlanguages:
-            usedlanguages[language].append([url])
-        else:
-            usedlanguages[language]=list([url])
-        languages=repo[u'languages']
-        for language,lines in languages.iteritems():
-            if language in linesperlanguage:
-                linesperlanguage[language]+=lines
-            else:
-                linesperlanguage[language]=lines
-    lcrepos=0
-    statistics[u'usedlanguages']=usedlanguages
-    statistics[u'linesperlanguage']=linesperlanguage
-    for lc in store[u'lcs']:
-        lcrepos+=len(store.orgs[lc][u'repos'])
-    statistics["lc-repos"]=lcrepos
-    statistics["total-repos"]=len(store.repos)
-    statistics["total-users"]=len(store.users)
-    totalfollowers=0
-    totalfollowing=0
-    totalstarred=0
-    for user in store.users.values():
-        totalfollowing+=len(user.following)
-        totalfollowers+=len(user.followers)
-        totalstarred+=len(user.starred)
-        user.repos
-    totalwatching=0
-    totalforks=0
-    for repo in store.repos.values():
-        totalwatching+=repo[u'watchers_count']
-        totalforks+=repo[u'forks_count']
-    statistics['total-followers']=totalfollowers
-    statistics['total-following']=totalfollowing
-    statistics['total-starred']=totalstarred
-    statistics['total-watching']=totalwatching
-    statistics['total-forks']=totalforks
-    store[u'statistics']=statistics
-    print store[u'orgs']
-    print store[u'statistics'][u'linesperlanguage']
