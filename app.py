@@ -51,7 +51,7 @@ def update_db():
     repos = db.repos
     for repo in store.repos:
         reposdb=repos.update({'url':repo},
-                {'url': url, 'data': store.repos[repo]},
+                {'url': repo, 'data': store.repos[repo]},
                 upsert=True,
                 w=0)
 
