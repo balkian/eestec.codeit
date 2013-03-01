@@ -1,10 +1,11 @@
 import requests
 import json
-from secrets import *
 from collections import Counter
+import os
 
 API_URL = 'https://api.github.com/'
-
+CLIENT_ID = os.getenv('GH_CLIENT_ID')
+CLIENT_SECRET = os.getenv('GH_CLIENT_SECRET')
 def get_url(url,relative=True):
     if relative:
         url=API_URL+url
