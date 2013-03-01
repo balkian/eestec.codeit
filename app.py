@@ -29,7 +29,7 @@ def hello():
     return 'Hello World!'
 
 def update_db():
-    store.load_all('prueba.json')
+    store.load_all('lcs.json')
     stats=store.get_stats()
     db.logs.insert({'time':str(datetime.now())})
     db.stats.insert(stats)
