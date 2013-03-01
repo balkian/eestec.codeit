@@ -67,27 +67,27 @@ class Store(dict):
             print "USER: %s" %user
             user.reload_repos()
 
-    def get_stats(self):
-        statistics={}
+    def get_langs_in_orgs(self,orgs):
         usedlanguages={}
         linesperlanguage={}
-        for repo in self.repos.values():
-            language=repo[u'language']
-            url=repo[u'url']
-            if language in usedlanguages:
-                usedlanguages[language].append([url])
-            else:
-                usedlanguages[language]=list([url])
-            languages=repo[u'languages']
-            for language,lines in languages.iteritems():
-                if language in linesperlanguage:
-                    linesperlanguage[language]+=lines
-                else:
-                    linesperlanguage[language]=lines
+        for org in orgs:
+            for repo in org.repos:
+                languages=repo[u'languages']
+                for language,lines in languages.iteritems():
+                    linesperlanguage[language]=linesperlanguage[language]+lines if language in linesperlanguage else lines
+                    usedlanguages[language]=usedlanguages[language]+[repo[u'name'],] if language in usedlanguages else [repo[u'url']]
+        return usedlanguages,linesperlanguage
+
+    def get_stats(self):
+        statistics={}
+        usedlanguagesint,linesperlanguageint=self.get_langs_in_orgs(self.orgs.values())
+        usedlanguagesext,linesperlanguageext=self.get_langs_in_orgs(self.users.values())
+        statistics[u'usedlanguagesint']=usedlanguagesint
+        statistics[u'linesperlanguageint']=linesperlanguageint
+        statistics[u'usedlanguagesext']=usedlanguagesext
+        statistics[u'linesperlanguageext']=linesperlanguageext
         lcrepos=0
-        statistics[u'usedlanguages']=usedlanguages
-        statistics[u'linesperlanguage']=linesperlanguage
-        for lc in self[u'lcs']:
+        for lc in self.orgs:
             lcrepos+=len(self.orgs[lc][u'repos'])
         statistics["lc-repos"]=lcrepos
         statistics["total-repos"]=len(self.repos)
@@ -110,9 +110,7 @@ class Store(dict):
         statistics['total-starred']=totalstarred
         statistics['total-watching']=totalwatching
         statistics['total-forks']=totalforks
-        self[u'statistics']=statistics
-        print self[u'orgs']
-        print self[u'statistics'][u'linesperlanguage']
+        return statistics
 
 class BasicItem(dict):
     def __init__(self,name,dic=None,method=get_url,name_key=u'url',store=None):
@@ -148,7 +146,7 @@ class BasicLogin(BasicItem):
         if not u'repos' in self:
             self.reload_repos()
         if self.store is not None:
-            return [store['repos'][name] for name in self[u'repos']]
+            return [self.store['repos'][name] for name in self[u'repos']]
         return self[u'repos']
 
     @repos.setter
@@ -158,7 +156,7 @@ class BasicLogin(BasicItem):
             self[u'repos']=[]
             for repo in repos:
                 url=repo[u'url']
-                store.add_repo(repo)
+                self.store.add_repo(repo)
                 self[u'repos'].append(url)
 
         else:
