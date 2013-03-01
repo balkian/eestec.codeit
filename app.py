@@ -58,7 +58,7 @@ def update_db():
 
 if __name__ == '__main__':
     # Bind to PORT if defined, otherwise default to 5000.
-    update_db()
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+    update_db()
 # Connect to memcache with config from environment variables.
