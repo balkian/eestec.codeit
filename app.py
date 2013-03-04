@@ -28,6 +28,11 @@ app = Flask(__name__)
 def hello():
     return 'Hello World!'
 
+@app.route('/stats')
+def stats():
+    stats = db.stats.findOne()
+    return stats
+
 def update_db():
     store.load_all('lcs.json')
     stats=store.get_stats()
