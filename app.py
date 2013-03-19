@@ -1,5 +1,4 @@
-from flask import Flask
-from flask import Response
+from flask import Flask, Response, url_for, redirect
 import os
 from urlparse import urlsplit
 from pymongo import Connection
@@ -11,7 +10,6 @@ import ast
 url = os.getenv('MONGOLAB_URI', 'mongodb://heroku_app12633543:e4kprjp4r1kj0bbv9f4gih4km@dbh44.mongolab.com:27447/heroku_app12633543')
 parsed = urlsplit(url)
 db_name = parsed.path[1:]
-
 
 store=library.Store()
 
@@ -28,7 +26,7 @@ app.debug = True
 
 @app.route('/')
 def hello():
-    return 'Hello World!'
+    return redirect(url_for('static', filename='prueba.html'))
 
 @app.route('/stats')
 def stats():

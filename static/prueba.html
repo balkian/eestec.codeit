@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title>Algo</title>
+        <script type='text/javascript' src='jquery-1.9.1.min.js'></script>
+        <script type='text/javascript' src='knockout-2.2.1.js'></script>
+        <script type='text/javascript' src='codeit.js'></script>
+        <script type='text/javascript' src="https://raw.github.com/jamesfoster/knockout.observableDictionary/master/ko.observableDictionary.js"></script>
+    </head>
+    <body>
+    <ul data-bind="foreach: orgs, visible: orgs().length > 0">
+        <li>
+            <input data-bind="value: title" />
+        </li> 
+    </ul>
+    <ul data-bind="foreach: repos, visible: repos().length > 0">
+        <li data-bind="text: url" />
+        </li> 
+    </ul>
+    <ul data-bind="foreach: stats.items">
+        <li>
+            <span data-bind="text: key"></span>
+            <span data-bind="text: value"></span>
+        </li>
+    </ul>
+    </body>
+</html>
