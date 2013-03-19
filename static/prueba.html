@@ -14,14 +14,15 @@
             <input data-bind="value: title" />
         </li> 
     </ul>
+    <!--
     <ul data-bind="foreach: repos, visible: repos().length > 0">
         <li data-bind="text: url" />
         </li> 
-    </ul>
+    </ul> -->
     <ul data-bind="foreach: stats.items">
         <li>
             <span data-bind="text: key"></span>
-            <span data-bind="text: value"></span>
+            <span data-bind="text: JSON.stringify(value())"></span>
         </li>
     </ul>
     </body>
